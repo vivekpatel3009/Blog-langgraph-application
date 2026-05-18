@@ -42,7 +42,7 @@ class BlogNode:
         """
         Translate both title and content to the specified language separately.
         """
-        print(f"Translating to: {state['current_language']}")
+        print(f"Translating to : {state['current_language']}")
         blog_title = state["blog"]["title"]
         blog_content = state["blog"]["content"]
         
