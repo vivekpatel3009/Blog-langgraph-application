@@ -1,19 +1,11 @@
-
 import streamlit as st
 import os
 import requests
-from src.ui.streamlitui.loadui import get_ui_loader
+from src.ui.streamlitui.loadui import LoadStreamlitUI
 from src.llms.groqllm import GroqLLM
 from src.graphs.graph_builder import GraphBuilder
 from src.ui.streamlitui.display_result import DisplayResultStreamlit
 
-# Streamlit page configuration
-st.set_page_config(
-    page_title="🤖 Blog Generator",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 # Determine if running against API or locally
 BACKEND_URL = os.getenv("BACKEND_URL", "").strip()
 USE_API = bool(BACKEND_URL)
@@ -26,8 +18,8 @@ def load_langgraph_agenticai_app():
     The app takes topic and language as input and generates blog content using LangGraph.
     """
 
-    # Load UI and get user inputs (cached to prevent duplicate elements)
-    ui = get_ui_loader()
+    # Load UI and get user inputs
+    ui = LoadStreamlitUI()
     user_input = ui.load_streamlit_ui()
 
     if not user_input:
@@ -184,7 +176,13 @@ def generate_blog_locally(topic: str, language: str, api_key: str):
         return
 
 
-
+# Streamlit page configuration
+st.set_page_config(
+    page_title="🤖 Blog Generator",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 if __name__ == "__main__":
-    load_langgraph_agenticai_app()   
+    load_langgraph_agenticai_app()

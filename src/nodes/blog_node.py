@@ -1,81 +1,139 @@
-from src.states.blogstate import BlogState
+from src.states.blogstate import BlogState, Blog
 from langchain_core.messages import SystemMessage, HumanMessage
-from src.states.blogstate import Blog
 
 class BlogNode:
     """
-    A class to represent he blog node
+    A class to represent blog node operations in the LangGraph workflow.
+    Handles title creation, content generation, and translation.
     """
 
-    def __init__(self,llm):
-        self.llm=llm
+    def __init__(self, llm):
+        self.llm = llm
 
-    
-    def title_creation(self,state:BlogState):
+    def title_creation(self, state: BlogState):
         """
-        create the title for the blog
-        """
-
-        if "topic" in state and state["topic"]:
-            prompt="""You are an expert blog content writer. Generate a SINGLE blog title for the topic: {topic}
-            Requirements:
-            - Return ONLY the title, nothing else
-            - Make it creative and SEO friendly
-            - Keep it concise (under 80 characters)
-            - Do NOT include alternatives or suggestions"""
+        Create a title for the blog based on the topic.
+        
+        Args:
+            state: The current state containing topic
             
-            sytem_message=prompt.format(topic=state["topic"])
-            print(sytem_message)
-            response=self.llm.invoke(sytem_message)
-            print(response)
-            return {"blog":{"title":response.content}}
-        
-    def content_generation(self,state:BlogState):
+        Returns:
+            Updated state with blog title
+        """
         if "topic" in state and state["topic"]:
-            system_prompt = """You are expert blog writer. Use Markdown formatting.
-            Generate a detailed blog content with detailed breakdown for the {topic}"""
-            system_message = system_prompt.format(topic=state["topic"])
-            response = self.llm.invoke(system_message)
-            return {"blog": {"title": state['blog']['title'], "content": response.content}}
+            prompt = f"""You are an expert blog content writer. Generate a SINGLE blog title for the topic: {state['topic']}
+
+Requirements:
+- Return ONLY the title, nothing else
+- Make it creative and SEO friendly
+- Keep it concise (under 80 characters)
+- Do NOT include alternatives or suggestions"""
+            
+            response = self.llm.invoke(prompt)
+            title = response.content.strip()
+            
+            return {"blog": Blog(title=title, content="")}
+        else:
+            return {"blog": Blog(title="Untitled", content="")}
         
-    def translation(self,state:BlogState):
+    def content_generation(self, state: BlogState):
         """
-        Translate both title and content to the specified language separately.
+        Generate detailed blog content based on the topic and existing title.
+        
+        Args:
+            state: The current state containing topic and blog title
+            
+        Returns:
+            Updated state with blog content
         """
-        print(f"Translating to : {state['current_language']}")
-        blog_title = state["blog"]["title"]
-        blog_content = state["blog"]["content"]
+        if "topic" in state and state["topic"]:
+            title = state["blog"].title if state.get("blog") else "Untitled"
+            
+            system_prompt = f"""You are an expert blog writer. Use Markdown formatting.
+Generate a detailed and comprehensive blog content for the topic: {state['topic']}
+
+Requirements:
+- Write 3-5 sections with proper headings
+- Include an introduction and conclusion
+- Use markdown formatting (##, bold, lists, etc.)
+- Make it informative and engaging
+- Keep paragraphs concise and clear"""
+            
+            response = self.llm.invoke(system_prompt)
+            content = response.content.strip()
+            
+            return {"blog": Blog(title=title, content=content)}
+        else:
+            return {"blog": Blog(title="Untitled", content="No content could be generated")}
+        
+    def translation(self, state: BlogState):
+        """
+        Translate both title and content to the specified language.
+        
+        Args:
+            state: The current state containing blog and target language
+            
+        Returns:
+            Updated state with translated blog content
+        """
+        current_language = state.get("current_language", "english").lower()
+        
+        # Skip translation if language is English
+        if current_language == "english":
+            return state
+        
+        blog_title = state["blog"].title
+        blog_content = state["blog"].content
         
         # Translate title
-        title_prompt = f"""Translate this blog title to {state['current_language']}. 
-        Return ONLY the translated title, nothing else.
-        Title: {blog_title}"""
+        title_prompt = f"""Translate this blog title to {current_language}. 
+Return ONLY the translated title, nothing else.
+Title: {blog_title}"""
+        
         title_response = self.llm.invoke(title_prompt)
         translated_title = title_response.content.strip()
         
         # Translate content
-        content_prompt = f"""Translate this blog content to {state['current_language']}.
-        - Keep markdown formatting
-        - Maintain tone and style
-        Return ONLY the translated content, nothing else.
-        Content: {blog_content}"""
+        content_prompt = f"""Translate this blog content to {current_language}.
+- Keep markdown formatting
+- Maintain tone and style
+- Translate section headings appropriately
+Return ONLY the translated content, nothing else.
+
+Content: {blog_content}"""
         
         content_response = self.llm.invoke(content_prompt)
         translated_content = content_response.content.strip()
             
-        return {"blog": {"title": translated_title, "content": translated_content}}
+        return {"blog": Blog(title=translated_title, content=translated_content)}
 
     def route(self, state: BlogState):
-        return {"current_language": state['current_language'] }
+        """
+        Route node to prepare state for conditional routing.
+        
+        Args:
+            state: The current state
+            
+        Returns:
+            State with current_language field for routing
+        """
+        return {"current_language": state.get("current_language", "english")}
     
-
     def route_decision(self, state: BlogState):
         """
-        Route the content to the respective translation function.
+        Determine which translation path to take based on language.
+        
+        Args:
+            state: The current state with language information
+            
+        Returns:
+            String indicating the language path ("hindi", "french", or "english")
         """
-        if state["current_language"] == "hindi":
+        language = state.get("current_language", "english").lower()
+        
+        if language == "hindi":
             return "hindi"
-        elif state["current_language"] == "french": 
+        elif language == "french":
             return "french"
         else:
-            return state['current_language']
+            return "english"
