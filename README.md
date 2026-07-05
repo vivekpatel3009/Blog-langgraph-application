@@ -84,7 +84,7 @@ GROQ_API_KEY=your_groq_api_key_here
 Optional, for making the Streamlit app call a remote FastAPI backend instead of running the graph locally:
 
 ```env
-BACKEND_URL=http://localhost:8000
+BACKEND_URL=https://blog-langgraph-application.onrender.com
 ```
 
 If `BACKEND_URL` is not set, the Streamlit app runs the LangGraph workflow directly.
@@ -113,19 +113,19 @@ python app.py
 The API runs on:
 
 ```text
-http://localhost:8000
+https://blog-langgraph-application.onrender.com
 ```
 
 Health check:
 
 ```bash
-curl http://localhost:8000/health
+curl https://blog-langgraph-application.onrender.com/health
 ```
 
 Generate a blog:
 
 ```bash
-curl -X POST http://localhost:8000/blogs ^
+curl -X POST https://blog-langgraph-application.onrender.com/blogs ^
   -H "Content-Type: application/json" ^
   -d "{\"topic\":\"Agentic AI\",\"language\":\"english\",\"api_key\":\"your_groq_api_key_here\"}"
 ```
@@ -134,7 +134,7 @@ For PowerShell:
 
 ```powershell
 Invoke-RestMethod `
-  -Uri "http://localhost:8000/blogs" `
+  -Uri "https://blog-langgraph-application.onrender.com/blogs" `
   -Method Post `
   -ContentType "application/json" `
   -Body '{"topic":"Agentic AI","language":"english","api_key":"your_groq_api_key_here"}'
