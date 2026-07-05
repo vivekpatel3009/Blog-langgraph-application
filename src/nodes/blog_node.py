@@ -50,14 +50,14 @@ Requirements:
             title = state["blog"].title if state.get("blog") else "Untitled"
             
             system_prompt = f"""You are an expert blog writer. Use Markdown formatting.
-Generate a detailed and comprehensive blog content for the topic: {state['topic']}
+            Generate a detailed and comprehensive blog content for the topic: {state['topic']}
 
-Requirements:
-- Write 3-5 sections with proper headings
-- Include an introduction and conclusion
-- Use markdown formatting (##, bold, lists, etc.)
-- Make it informative and engaging
-- Keep paragraphs concise and clear"""
+            Requirements:
+            - Write 3-5 sections with proper headings
+            - Include an introduction and conclusion
+            - Use markdown formatting (##, bold, lists, etc.)
+            - Make it informative and engaging
+            - Keep paragraphs concise and clear"""
             
             response = self.llm.invoke(system_prompt)
             content = response.content.strip()

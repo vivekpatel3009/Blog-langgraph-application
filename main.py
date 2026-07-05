@@ -6,7 +6,8 @@ from src.ui.streamlitui.loadui import get_ui_loader
 from src.llms.groqllm import GroqLLM
 from src.graphs.graph_builder import GraphBuilder
 from src.ui.streamlitui.display_result import DisplayResultStreamlit
-
+from dotenv import load_dotenv
+load_dotenv()
 # Streamlit page configuration
 st.set_page_config(
     page_title="🤖 Blog Generator",
