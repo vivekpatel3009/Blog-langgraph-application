@@ -1,52 +1,14 @@
-# Python bytecode and caches
+# Python cache files
 __pycache__/
 *.py[cod]
-*$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
 
-# Build and packaging artifacts
-build/
-dist/
-wheels/
-*.egg-info/
-*.whl
-
-# Virtual environments and local Python tooling
+# Virtual environment
 .venv/
-venv/
-env/
-ENV/
-.python-version
 
-# Environment and secrets
+# Environment files and secrets
 .env
-.env.local
 .env.*
 !.env.example
-*.local
 
-# LangGraph / local runtime artifacts
+# LangGraph local runtime files
 .langgraph_api/
-*.log
-*.sqlite3
-*.db
-
-# Streamlit local secrets (keep config.toml tracked)
-.streamlit/secrets.toml
-
-# Editor and OS noise
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*.tmp
-
-# Project-specific legacy / local-only files
-gitignore
